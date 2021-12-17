@@ -85,7 +85,7 @@ All event routes begin with `/api/v1/events`.
 1. Get all events - *get* request to `/api/v1/events`
 2. Create an event - *post* request to `/api/v1/events`
     - Body format
-        ```JSON
+        ```yaml
         {
             "eventTitle": "Concert Festival",
             "eventDate": "2021-12-10",  // date format is YYYY-MM-DD
