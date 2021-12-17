@@ -25,7 +25,7 @@ const tagRouter = require('./routes/tag.route');
 
 const User = require('./models/user.model');
 
-app.use('/api/v1/users', authenticateToken, userRouter);
+app.use('/api/v1/users', userRouter);
 app.use('/api/v1/events', authenticateToken, eventRouter);
 app.use('/api/v1/tags', authenticateToken, tagRouter);
 

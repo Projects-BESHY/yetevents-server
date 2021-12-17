@@ -1,8 +1,9 @@
 const router = require('express').Router();
+const jwt = require('jsonwebtoken');
 let User = require('../models/user.model');
 let Event = require('../models/event.model');
 
-router.route('/').get((req, res) => {
+router.route('/').get(authenticateToken, (req, res) => {
     User.find()
         .then(users => res.json(users))
         .catch(err => res.status(400).json('Error: ' + err));
@@ -22,13 +23,13 @@ router.route('/').post((req, res) => {
         .catch(err => res.status(400).json('Error: ' + err));
 })
 
-router.route('/:id').get((req, res) => {
+router.route('/:id').get(authenticateToken, (req, res) => {
     User.findById(req.params.id)
         .then(user => res.json(user))
         .catch(err => res.status(400).json('Error: ' + err));
 })
 
-router.route('/:id').put((req, res) => {
+router.route('/:id').put(authenticateToken, (req, res) => {
     User.findById(req.params.id)
         .then(user => {
             user.userName = req.body.userName;
@@ -43,21 +44,21 @@ router.route('/:id').put((req, res) => {
 });
 
 // Get all events created by a user
-router.route('/:id/events').get((req, res) => {
+router.route('/:id/events').get(authenticateToken, (req, res) => {
     Event.find({ eventCreator: req.params.id }).populate("eventUsers")
         .then(events => res.json(events))
         .catch(err => res.status(400).json('Error: ' + err));
 });
 
 // Get all events a user has registered to
-router.route('/:id/tickets').get((req, res) => {
+router.route('/:id/tickets').get(authenticateToken, (req, res) => {
     User.findById(req.params.id).populate("userEvents")
         .then(user => res.json(user.userEvents))
         .catch(err => res.status(400).json('Error: ' + err));
 });
 
 // To register a user to an event
-router.route('/:userId/events/:eventId').post((req, res) => {
+router.route('/:userId/events/:eventId').post(authenticateToken, (req, res) => {
     Event.updateOne(
         { _id: req.params.eventId },
         { $push: { eventUsers: req.params.userId } })
@@ -71,7 +72,7 @@ router.route('/:userId/events/:eventId').post((req, res) => {
 });
 
 // To unregister a user from an event
-router.route('/:userId/events/:eventId').delete((req, res) => {
+router.route('/:userId/events/:eventId').delete(authenticateToken, (req, res) => {
     Event.updateOne(
         { _id: req.params.eventId },
         { $pull: { eventUsers: req.params.userId } })
@@ -91,5 +92,18 @@ router.route('/:userId/events/:eventId').delete((req, res) => {
 //         .then(() => res.json('User deleted'))
 //         .catch(err => res.status(400).json('Error: ' + err));
 // })
+
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token == null) return res.status(401).json({ message: 'No token. Please provide one in the request header Authorization.' });
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ message: 'Invalid token' });
+        req.user = user;
+        next();
+    })
+}
 
 module.exports = router;
