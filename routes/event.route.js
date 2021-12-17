@@ -1,6 +1,7 @@
 const router = require('express').Router();
 let Event = require('../models/event.model');
 let Tag = require('../models/tag.model');
+let User = require('../models/user.model');
 
 router.route('/').get((req, res) => {
     Event.find().populate("eventTags").populate("eventCreator")
@@ -31,6 +32,12 @@ router.route('/').post((req, res) => {
                     tag.tagEvents.push(eventId);
                     tag.save();
                 }
+
+                const userId = req.body.eventCreator;
+                const creator = await User.findById(userId);
+                creator.userCreatedEvents.push(eventId);
+                creator.save();
+
             res.json('Event added');
         })
         .catch(err => res.status(400).json('Error: ' + err));
