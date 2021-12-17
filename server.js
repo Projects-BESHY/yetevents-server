@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 
 require('dotenv').config();
 
@@ -24,28 +25,44 @@ const tagRouter = require('./routes/tag.route');
 
 const User = require('./models/user.model');
 
-app.use('/api/v1/users', userRouter);
-app.use('/api/v1/events', eventRouter); 
-app.use('/api/v1/tags', tagRouter); 
+app.use('/api/v1/users', authenticateToken, userRouter);
+app.use('/api/v1/events', authenticateToken, eventRouter);
+app.use('/api/v1/tags', authenticateToken, tagRouter);
 
 app.route('/api/v1/login').post((req, res) => {
     const userName = req.body.userName;
     const userPassword = req.body.userPassword;
 
-    User.findOne({userName: userName})
+    User.findOne({ userName: userName }).populate("userEvents").populate("userCreatedEvents").lean()
         .then(user => {
-            console.log(user);
             if (userPassword === user.userPassword) {
-                res.json("Authenticated user");
+                const token = jwt.sign(
+                    { id: user._id, username: user.userName }, 
+                    process.env.ACCESS_TOKEN_SECRET, 
+                    { expiresIn: "30 days" }
+                );
+                res.json({ authenticated: true, token: token, ...user });
             } else {
-                res.json("Unauthenticated user");
+                res.status(401).json({ authenticated: false, message: 'Incorrect username or password.' });
             }
         })
-        .catch(err => res.status(400).json('Error: ') + err);
+        .catch(err => res.status(400).json({ error: err }));
 })
 
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
 });
 
-// nodemon server TO RUN
+
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token == null) return res.status(401).json({ message: 'No token. Please provide one in the request header Authorization.' });
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ message: 'Invalid token' });
+        req.user = user;
+        next();
+    })
+}
