@@ -14,12 +14,12 @@ router.route('/').post((req, res) => {
     const eventDate = Date.parse(req.body.eventDate);
     const eventDescription = req.body.eventDescription;
     const eventImageUrl = req.body.eventImageUrl;
-    const eventLocation = req.body.eventLocation;
+    const eventAddress = req.body.eventAddress;
     const eventTags = req.body.eventTags;
     const eventCreator = req.body.eventCreator;
 
     const newEvent = new Event({
-        eventTitle, eventDate, eventDescription, eventImageUrl, eventLocation, eventTags, eventCreator
+        eventTitle, eventDate, eventDescription, eventImageUrl, eventAddress, eventTags, eventCreator
     });
 
     newEvent.save()

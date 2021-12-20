@@ -14,13 +14,21 @@ router.route('/').post((req, res) => {
     const userEmail = req.body.userEmail;
     const userPassword = req.body.userPassword;
 
+    // added for the map
+    const userAddress = req.body.userAddress;
     const newUser = new User({
-        userName, userEmail, userPassword
+        userName, userEmail, userPassword, userAddress
     });
 
     newUser.save()
         .then(() => res.json('User added'))
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch((err)=> {
+            console.error(err)
+            if (err.code === 11000) {
+                return res.status(400).json({ error: 'This user already exists' });
+              }
+              res.status(500).json({ error: 'Server error' });        }
+            );
 })
 
 router.route('/:id').get(authenticateToken, (req, res) => {

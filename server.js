@@ -41,6 +41,7 @@ app.route('/api/v1/login').post((req, res) => {
                     process.env.ACCESS_TOKEN_SECRET, 
                     { expiresIn: "30 days" }
                 );
+                // console.log(token)
                 res.json({ authenticated: true, token: token, ...user });
             } else {
                 res.status(401).json({ authenticated: false, message: 'Incorrect username or password.' });

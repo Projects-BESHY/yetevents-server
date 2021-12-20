@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const geocoder = require('../utils/geocoder');
+
 const Schema = mongoose.Schema;
 
 const eventSchema = new Schema({
@@ -15,9 +17,20 @@ const eventSchema = new Schema({
         required: true
     },
     eventImageUrl: { type: String },
-    eventLocation: {
-        type: { type: String },
-        coordinates: []
+    eventAddress: {
+        type: String,
+        required: true
+    },
+    eventLocation:{
+        type: {
+            type: String,
+            enum: ['Point']
+          },
+          coordinates: {
+            type: [Number],
+            index: '2dsphere'
+          },
+          formattedAddress: String
     },
     eventTags: [
         {
@@ -39,7 +52,22 @@ const eventSchema = new Schema({
     timestamps: true,
 });
 
-eventSchema.index({ eventLocation: "2dsphere" });
+// eventSchema.index({ eventLocation: "2dsphere" });
+// Geocode & create location
+eventSchema.pre('save', async function(next) {
+    const loc = await geocoder.geocode(this.eventAddress);
+    this.eventLocation = {
+      type: 'Point',
+      coordinates: [loc[0].longitude, loc[0].latitude],
+      formattedAddress: loc[0].formattedAddress
+    };
+  
+    // Do not save address
+    this.eventAddress = undefined;
+    next();
+  }
+  );
+
 
 const Event = mongoose.model('Event', eventSchema);
 
