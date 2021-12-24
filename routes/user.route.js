@@ -3,12 +3,14 @@ const jwt = require('jsonwebtoken');
 let User = require('../models/user.model');
 let Event = require('../models/event.model');
 
+// get all users
 router.route('/').get(authenticateToken, (req, res) => {
     User.find()
         .then(users => res.json(users))
         .catch(err => res.status(400).json('Error: ' + err));
 })
 
+// create user 
 router.route('/').post((req, res) => {
     const userName = req.body.userName;
     const userEmail = req.body.userEmail;
@@ -31,18 +33,20 @@ router.route('/').post((req, res) => {
             );
 })
 
+// get a user
 router.route('/:id').get(authenticateToken, (req, res) => {
     User.findById(req.params.id)
         .then(user => res.json(user))
         .catch(err => res.status(400).json('Error: ' + err));
 })
-
+// update user 
 router.route('/:id').put(authenticateToken, (req, res) => {
     User.findById(req.params.id)
         .then(user => {
             user.userName = req.body.userName;
             user.userEmail = req.body.userEmail;
             user.userPassword = req.body.userPassword;
+            user.userAddress = req.body.userAddress
 
             user.save()
                 .then(() => res.json('User updated'))

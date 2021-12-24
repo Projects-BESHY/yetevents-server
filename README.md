@@ -22,6 +22,7 @@ This is the backend/server for design pattern project done with nodejs, expressj
     - userName
     - userPassword
     - userEmail
+    - userAddress
     - userEvents: The events the user has registered to. Many to Many relationship with `Event`
     - userCreatedEvents: The events the user has created. One to Many relationship with `Event`
 2. `Event`
@@ -29,7 +30,8 @@ This is the backend/server for design pattern project done with nodejs, expressj
     - eventDate
     - eventDescription
     - eventImageUrl
-    - eventLocation: Stored using the GeoJSON format. 
+    - eventAddress
+    - eventLocation: Stored using the GeoJSON format od the eventAddress provided. 
     - eventTags: Many to Many relationship with `Tag`
     - eventUsers: The users that have registered to the event. Many to Many relationship with `User`
     - eventCreator: Many to one relationship with `User`
@@ -37,13 +39,18 @@ This is the backend/server for design pattern project done with nodejs, expressj
     - tagName
     - tagEvents: Many to Many relationship with `Event`
 -------------
+
+# ** for the address , most accurate format to get best result of the real location
+# ** House Number, Street Direction, Street Name, Street Suffix, City, State, Zip, Country
+
 ## Routes
 To access any route, you first need to have a token. Go to `/api/v1/users` to create a new user. Make a *post* request with body like
 ```JSON
 {
     "userName": "John Doe",
     "userEmail": "john@example.com",
-    "userPassword": "john"
+    "userPassword": "john",
+    "userAddress": "Addis Ababa, Ethiopia"
 }
 ```
 
@@ -67,10 +74,16 @@ All user routes begin with `/api/v1/users`.
 2. Create a new user - *post* request to `/api/v1/users`
     - Body format
         ```JSON
-        {
+        //{
             "userName": "John Doe",
             "userEmail": "john@example.com",
             "userPassword": "john"
+        //} 
+        {
+            "userName": "John Doe",
+            "userEmail": "john@example.com",
+            "userPassword": "john",
+            "userAddress" : "Addis Ababa 5 kilo" 
         }
         ```
 3. Get user by id - *get* request to `/api/v1/users/{id}`
@@ -99,6 +112,17 @@ All event routes begin with `/api/v1/events`.
             "eventCreator": "61b341d0a4218e54764264c8"  // id as string
         }
         ```
+        <!-- changed to  -->
+        {
+            "eventTitle": "Concert Festival",
+            "eventDate": "2021-12-25", 
+            "eventDescription": "some description",
+            "eventImageUrl": "some url",
+            "eventAddress" : "arat kilo addis ababa",
+            "eventTags": ["61c06c052be1d8ca56b159ff"],  
+            "eventCreator": "61c5b11c17799c7ba3fa3831"  
+        }
+        
 3. Get event by id - *get* request to `/api/v1/events/{id}`
 4. Update event - *put* request to `/api/v1/events/{id}`
 
@@ -115,3 +139,5 @@ All tag routes begin with `/api/v1/tags`.
 3. Get tag by id - *get* request to `/api/v1/tags/{id}`
 4. Update tag - *post* request to `/api/v1/tags/{id}`
 5. Get all events by tag - *get* request to `/api/v1/tags/{id}/events`
+
+

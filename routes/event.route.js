@@ -3,12 +3,14 @@ let Event = require('../models/event.model');
 let Tag = require('../models/tag.model');
 let User = require('../models/user.model');
 
+// ger all events
 router.route('/').get((req, res) => {
     Event.find().populate("eventTags").populate("eventCreator")
         .then(events => res.json(events))
         .catch(err => res.status(400).json('Error: ' + err));
 })
 
+// create new event
 router.route('/').post((req, res) => {
     const eventTitle = req.body.eventTitle;
     const eventDate = Date.parse(req.body.eventDate);
@@ -43,12 +45,13 @@ router.route('/').post((req, res) => {
         .catch(err => res.status(400).json('Error: ' + err));
 })
 
+// get an event
 router.route('/:id').get((req, res) => {
     Event.findById(req.params.id)
         .then(event => res.json(event))
         .catch(err => res.status(400).json('Error: ' + err));
 })
-
+// update an event 
 router.route('/:id').put((req, res) => {
     Event.findById(req.params.id)
         .then(event => {
@@ -56,7 +59,7 @@ router.route('/:id').put((req, res) => {
             event.eventDate = Date.parse(req.body.eventDate);
             event.eventDescription = req.body.eventDescription;
             event.eventImageUrl = req.body.eventImageUrl;
-            event.eventLocation = req.body.eventLocation;
+            event.eventAddress = req.body.eventAddress;
             event.eventTags = req.body.eventTags;
 
             event.save()
