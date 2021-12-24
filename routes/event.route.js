@@ -6,7 +6,7 @@ let User = require('../models/user.model');
 router.route('/').get((req, res) => {
     Event.find().populate("eventTags").populate("eventCreator")
         .then(events => res.json(events))
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 })
 
 router.route('/').post((req, res) => {
@@ -40,13 +40,13 @@ router.route('/').post((req, res) => {
 
             res.json('Event added');
         })
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 })
 
 router.route('/:id').get((req, res) => {
     Event.findById(req.params.id)
         .then(event => res.json(event))
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 })
 
 router.route('/:id').put((req, res) => {
@@ -61,15 +61,15 @@ router.route('/:id').put((req, res) => {
 
             event.save()
                 .then(() => res.json('Event updated'))
-                .catch(err => res.status(400).json('Error: ' + err));
+                .catch(err => res.status(400).json({ error: err }));
         })
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 });
 
 // router.route('/:id').delete((req, res) => {
 //     Employee.findByIdAndDelete(req.params.id)
 //         .then(() => res.json('Employee deleted'))
-//         .catch(err => res.status(400).json('Error: ' + err));
+//         .catch(err => res.status(400).json({ error: err }));
 // })
 
 module.exports = router;

@@ -6,7 +6,7 @@ let Event = require('../models/event.model');
 router.route('/').get(authenticateToken, (req, res) => {
     User.find()
         .then(users => res.json(users))
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 })
 
 router.route('/').post((req, res) => {
@@ -21,13 +21,13 @@ router.route('/').post((req, res) => {
 
     newUser.save()
         .then(() => res.json('User added'))
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 })
 
 router.route('/:id').get(authenticateToken, (req, res) => {
     User.findById(req.params.id)
         .then(user => res.json(user))
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 })
 
 router.route('/:id').put(authenticateToken, (req, res) => {
@@ -39,23 +39,23 @@ router.route('/:id').put(authenticateToken, (req, res) => {
 
             user.save()
                 .then(() => res.json('User updated'))
-                .catch(err => res.status(400).json('Error: ' + err));
+                .catch(err => res.status(400).json({ error: err }));
         })
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 });
 
 // Get all events created by a user
 router.route('/:id/events').get(authenticateToken, (req, res) => {
     Event.find({ eventCreator: req.params.id }).populate("eventUsers")
         .then(events => res.json(events))
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 });
 
 // Get all events a user has registered to
 router.route('/:id/tickets').get(authenticateToken, (req, res) => {
     User.findById(req.params.id).populate("userEvents")
         .then(user => res.json(user.userEvents))
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 });
 
 // To register a user to an event
@@ -69,7 +69,7 @@ router.route('/:userId/events/:eventId').post(authenticateToken, (req, res) => {
             user.save();
             res.json('User registered to event');
         })
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 });
 
 // To unregister a user from an event
@@ -85,13 +85,13 @@ router.route('/:userId/events/:eventId').delete(authenticateToken, (req, res) =>
 
             res.json('User unregistered from event');
         })
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 });
 
 // router.route('/:id').delete((req, res) => {
 //     User.findByIdAndDelete(req.params.id)
 //         .then(() => res.json('User deleted'))
-//         .catch(err => res.status(400).json('Error: ' + err));
+//         .catch(err => res.status(400).json({ error: err }));
 // })
 
 function authenticateToken(req, res, next) {
