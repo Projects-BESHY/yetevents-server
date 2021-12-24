@@ -1,9 +1,13 @@
 {
   "name": "yeteventsserver",
   "version": "1.0.0",
+  "engines": {
+    "node": "12.18.3"
+  },
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "node server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
