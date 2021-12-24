@@ -33,15 +33,16 @@ app.route('/api/v1/login').post((req, res) => {
     const userName = req.body.userName;
     const userPassword = req.body.userPassword;
 
-    User.findOne({ userName: userName }).populate("userEvents").populate("userCreatedEvents").lean()
+    User.findOne({ userName: userName }).populate("userEvents").populate("userCreatedEvents")
         .then(user => {
-            if (userPassword === user.userPassword) {
+            if (user.validPassword(userPassword)) {
+                let userInfo = user._doc;
                 const token = jwt.sign(
-                    { id: user._id, username: user.userName }, 
-                    process.env.ACCESS_TOKEN_SECRET, 
+                    { id: user._id, username: user.userName },
+                    process.env.ACCESS_TOKEN_SECRET,
                     { expiresIn: "30 days" }
                 );
-                res.json({ authenticated: true, token: token, ...user });
+                res.json({ authenticated: true, token: token, ...userInfo });
             } else {
                 res.status(401).json({ authenticated: false, message: 'Incorrect username or password.' });
             }

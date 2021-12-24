@@ -14,9 +14,10 @@ router.route('/').post((req, res) => {
     const userEmail = req.body.userEmail;
     const userPassword = req.body.userPassword;
 
-    const newUser = new User({
-        userName, userEmail, userPassword
-    });
+    const newUser = new User();
+    newUser.userName = req.body.userName;
+    newUser.userEmail = req.body.userEmail;
+    newUser.setPassword(req.body.userPassword);
 
     newUser.save()
         .then(() => res.json('User added'))
