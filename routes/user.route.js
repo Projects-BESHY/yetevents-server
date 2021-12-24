@@ -20,7 +20,7 @@ router.route('/').post((req, res) => {
     newUser.setPassword(req.body.userPassword);
 
     newUser.save()
-        .then(() => res.json('User added'))
+        .then(() => res.json({ success: true, message: 'User added' }))
         .catch(err => res.status(400).json({ error: err }));
 })
 
@@ -38,7 +38,7 @@ router.route('/:id').put(authenticateToken, (req, res) => {
             user.userPassword = req.body.userPassword;
 
             user.save()
-                .then(() => res.json('User updated'))
+                .then(() => res.json({ success: true, message: 'User updated' }))
                 .catch(err => res.status(400).json({ error: err }));
         })
         .catch(err => res.status(400).json({ error: err }));
@@ -67,7 +67,7 @@ router.route('/:userId/events/:eventId').post(authenticateToken, (req, res) => {
             const user = await User.findById(req.params.userId);
             user.userEvents.push(req.params.eventId);
             user.save();
-            res.json('User registered to event');
+            res.json({ success: true, message: 'User registered to event' });
         })
         .catch(err => res.status(400).json({ error: err }));
 });
@@ -83,14 +83,14 @@ router.route('/:userId/events/:eventId').delete(authenticateToken, (req, res) =>
             user.userEvents.splice(eventIndex, 1);
             user.save();
 
-            res.json('User unregistered from event');
+            res.json({ success: true, message: 'User unregistered from event' });
         })
         .catch(err => res.status(400).json({ error: err }));
 });
 
 // router.route('/:id').delete((req, res) => {
 //     User.findByIdAndDelete(req.params.id)
-//         .then(() => res.json('User deleted'))
+//         .then(() => res.json({ success: true, message: 'User deleted'}))
 //         .catch(err => res.status(400).json({ error: err }));
 // })
 

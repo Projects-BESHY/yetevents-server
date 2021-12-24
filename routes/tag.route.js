@@ -15,7 +15,7 @@ router.route('/').post((req, res) => {
     });
 
     newTag.save()
-        .then(() => res.json('Tag added'))
+        .then(() => res.json({ success: true, message: 'Tag added' }))
         .catch(err => res.status(400).json({ error: err }));
 })
 
@@ -31,16 +31,16 @@ router.route('/:id').post((req, res) => {
             tag.tagName = req.body.tagName;
 
             tag.save()
-                .then(() => res.json('Tag updated'))
+                .then(() => res.json({ success: true, message: 'Tag updated' }))
                 .catch(err => res.status(400).json({ error: err }));
         })
-        .catch(err => res.status(400).json({ error: err }));   
+        .catch(err => res.status(400).json({ error: err }));
 });
 
 router.route('/:id/events').get((req, res) => {
     Tag.findById(req.params.id).populate("tagEvents")
         .then(tag => res.json(tag.tagEvents))
-        .catch(err => res.status(400).json({ error: err })); 
+        .catch(err => res.status(400).json({ error: err }));
 })
 
 module.exports = router;

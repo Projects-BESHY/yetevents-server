@@ -24,21 +24,21 @@ router.route('/').post((req, res) => {
 
     newEvent.save()
         .then(async () => {
-                const event = await Event.findOne({eventTitle: eventTitle});
-                const eventId = event._id;
-                const tagIds = req.body.eventTags;
-                for (let i = 0; i < tagIds.length; i++) {
-                    const tag = await Tag.findById(tagIds[i]);
-                    tag.tagEvents.push(eventId);
-                    tag.save();
-                }
+            const event = await Event.findOne({ eventTitle: eventTitle });
+            const eventId = event._id;
+            const tagIds = req.body.eventTags;
+            for (let i = 0; i < tagIds.length; i++) {
+                const tag = await Tag.findById(tagIds[i]);
+                tag.tagEvents.push(eventId);
+                tag.save();
+            }
 
-                const userId = req.body.eventCreator;
-                const creator = await User.findById(userId);
-                creator.userCreatedEvents.push(eventId);
-                creator.save();
+            const userId = req.body.eventCreator;
+            const creator = await User.findById(userId);
+            creator.userCreatedEvents.push(eventId);
+            creator.save();
 
-            res.json('Event added');
+            res.json({ success: true, message: 'Event added' });
         })
         .catch(err => res.status(400).json({ error: err }));
 })
@@ -60,7 +60,7 @@ router.route('/:id').put((req, res) => {
             event.eventTags = req.body.eventTags;
 
             event.save()
-                .then(() => res.json('Event updated'))
+                .then(() => res.status(201).json({ success: true, message: 'Event updated' }))
                 .catch(err => res.status(400).json({ error: err }));
         })
         .catch(err => res.status(400).json({ error: err }));
