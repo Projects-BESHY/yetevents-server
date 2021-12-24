@@ -35,7 +35,7 @@ router.route('/:id').put(authenticateToken, (req, res) => {
         .then(user => {
             user.userName = req.body.userName;
             user.userEmail = req.body.userEmail;
-            user.userPassword = req.body.userPassword;
+            user.setPassword(req.body.userPassword);
 
             user.save()
                 .then(() => res.json({ success: true, message: 'User updated' }))
