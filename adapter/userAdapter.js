@@ -13,16 +13,10 @@ class UserAdapter extends UserPublic {
         this.user = user;
     }
 
-    findOne(userName) {
-        return new Promise((resolve, reject) => {
-
-            this.user.findOne({ userName: userName }).populate("userEvents").populate("userCreatedEvents")
-                .then(u => {
-                    this.removeConfidentials(u);
-                    resolve(this);
-                })
-                .catch(err => { reject(err) });
-        });
+    findOne() {
+        this.removeConfidentials(this.user);
+        const { user, ...rest } = this;
+        return rest;
     }
 
     // helper function

@@ -8,7 +8,7 @@ class UserPublic {
 
     constructor() {}
 
-    findOne(userName) {}
+    findOne() {}
 }
 
 module.exports = UserPublic;

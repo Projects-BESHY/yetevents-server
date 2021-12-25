@@ -34,21 +34,15 @@ app.route('/api/v1/login').post((req, res) => {
     const userName = req.body.userName;
     const userPassword = req.body.userPassword;
 
-    let userPublic = new UserAdapter(User);
-
     User.findOne({ userName: userName }).populate("userEvents").populate("userCreatedEvents")
         .then(user => {
-            if (user.validPassword(userPassword)) 
-                return jwt.sign({ id: user._id, username: user.userName }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "30 days" });
+            let userPublic = new UserAdapter(user);
+            if (user.validPassword(userPassword)) { 
+                let token = jwt.sign({ id: user._id, username: user.userName }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "30 days" });
+                res.json({ authenticated: true, token: token, ...userPublic.findOne() });
+            }
             else
                 res.status(401).json({ authenticated: false, message: 'Incorrect username or password.' });
-        })
-        .then(token => {
-             userPublic.findOne(userName)
-                .then(user => {
-                    res.json({ authenticated: true, token: token, ...user});
-                })
-                .catch(err => res.status(400).json({ error: err }));
         })
         .catch(err => res.status(400).json({ error: err }));
 })
