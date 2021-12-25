@@ -7,7 +7,7 @@ let User = require('../models/user.model');
 router.route('/').get((req, res) => {
     Event.find().populate("eventTags").populate("eventCreator")
         .then(events => res.json(events))
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 })
 
 // create new event
@@ -26,30 +26,30 @@ router.route('/').post((req, res) => {
 
     newEvent.save()
         .then(async () => {
-                const event = await Event.findOne({eventTitle: eventTitle});
-                const eventId = event._id;
-                const tagIds = req.body.eventTags;
-                for (let i = 0; i < tagIds.length; i++) {
-                    const tag = await Tag.findById(tagIds[i]);
-                    tag.tagEvents.push(eventId);
-                    tag.save();
-                }
+            const event = await Event.findOne({ eventTitle: eventTitle });
+            const eventId = event._id;
+            const tagIds = req.body.eventTags;
+            for (let i = 0; i < tagIds.length; i++) {
+                const tag = await Tag.findById(tagIds[i]);
+                tag.tagEvents.push(eventId);
+                tag.save();
+            }
 
-                const userId = req.body.eventCreator;
-                const creator = await User.findById(userId);
-                creator.userCreatedEvents.push(eventId);
-                creator.save();
+            const userId = req.body.eventCreator;
+            const creator = await User.findById(userId);
+            creator.userCreatedEvents.push(eventId);
+            creator.save();
 
-            res.json('Event added');
+            res.json({ success: true, message: 'Event added' });
         })
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 })
 
 // get an event
 router.route('/:id').get((req, res) => {
     Event.findById(req.params.id)
         .then(event => res.json(event))
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 })
 // update an event 
 router.route('/:id').put((req, res) => {
@@ -63,16 +63,16 @@ router.route('/:id').put((req, res) => {
             event.eventTags = req.body.eventTags;
 
             event.save()
-                .then(() => res.json('Event updated'))
-                .catch(err => res.status(400).json('Error: ' + err));
+                .then(() => res.status(201).json({ success: true, message: 'Event updated' }))
+                .catch(err => res.status(400).json({ error: err }));
         })
-        .catch(err => res.status(400).json('Error: ' + err));
+        .catch(err => res.status(400).json({ error: err }));
 });
 
 // router.route('/:id').delete((req, res) => {
 //     Employee.findByIdAndDelete(req.params.id)
 //         .then(() => res.json('Employee deleted'))
-//         .catch(err => res.status(400).json('Error: ' + err));
+//         .catch(err => res.status(400).json({ error: err }));
 // })
 
 module.exports = router;

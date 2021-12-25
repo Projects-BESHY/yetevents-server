@@ -24,6 +24,7 @@ const eventRouter = require('./routes/event.route');
 const tagRouter = require('./routes/tag.route');
 
 const User = require('./models/user.model');
+const UserAdapter = require('./adapter/userAdapter');
 
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/events', authenticateToken, eventRouter);
@@ -33,19 +34,21 @@ app.route('/api/v1/login').post((req, res) => {
     const userName = req.body.userName;
     const userPassword = req.body.userPassword;
 
-    User.findOne({ userName: userName }).populate("userEvents").populate("userCreatedEvents").lean()
+    let userPublic = new UserAdapter(User);
+
+    User.findOne({ userName: userName }).populate("userEvents").populate("userCreatedEvents")
         .then(user => {
-            if (userPassword === user.userPassword) {
-                const token = jwt.sign(
-                    { id: user._id, username: user.userName }, 
-                    process.env.ACCESS_TOKEN_SECRET, 
-                    { expiresIn: "30 days" }
-                );
-                // console.log(token)
-                res.json({ authenticated: true, token: token, ...user });
-            } else {
+            if (user.validPassword(userPassword)) 
+                return jwt.sign({ id: user._id, username: user.userName }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "30 days" });
+            else
                 res.status(401).json({ authenticated: false, message: 'Incorrect username or password.' });
-            }
+        })
+        .then(token => {
+             userPublic.findOne(userName)
+                .then(user => {
+                    res.json({ authenticated: true, token: token, ...user});
+                })
+                .catch(err => res.status(400).json({ error: err }));
         })
         .catch(err => res.status(400).json({ error: err }));
 })
