@@ -44,7 +44,7 @@ app.route('/api/v1/login').post((req, res) => {
             else
                 res.status(401).json({ authenticated: false, message: 'Incorrect username or password.' });
         })
-        .catch(err => res.status(400).json({ error: err }));
+        .catch(err => res.status(400).json({ error: err.message }));
 })
 
 app.listen(port, () => {
