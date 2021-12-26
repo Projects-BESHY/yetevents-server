@@ -7,7 +7,7 @@ let Event = require('../models/event.model');
 router.route('/').get(authenticateToken, (req, res) => {
     User.find()
         .then(users => res.json(users))
-        .catch(err => res.status(400).json({ error: err }));
+        .catch(err => res.status(400).json({ error: err.message }));
 })
 
 // create user 
@@ -24,14 +24,14 @@ router.route('/').post((req, res) => {
 
     newUser.save()
         .then(() => res.json({ success: true, message: 'User added' }))
-        .catch(err => res.status(400).json({ error: err }));
+        .catch(err => res.status(400).json({ error: err.message }));
 })
 
 // get a user
 router.route('/:id').get(authenticateToken, (req, res) => {
     User.findById(req.params.id)
         .then(user => res.json(user))
-        .catch(err => res.status(400).json({ error: err }));
+        .catch(err => res.status(400).json({ error: err.message }));
 })
 // update user 
 router.route('/:id').put(authenticateToken, (req, res) => {
@@ -44,23 +44,23 @@ router.route('/:id').put(authenticateToken, (req, res) => {
 
             user.save()
                 .then(() => res.json({ success: true, message: 'User updated' }))
-                .catch(err => res.status(400).json({ error: err }));
+                .catch(err => res.status(400).json({ error: err.message }));
         })
-        .catch(err => res.status(400).json({ error: err }));
+        .catch(err => res.status(400).json({ error: err.message }));
 });
 
 // Get all events created by a user
 router.route('/:id/events').get(authenticateToken, (req, res) => {
     Event.find({ eventCreator: req.params.id }).populate("eventUsers")
         .then(events => res.json(events))
-        .catch(err => res.status(400).json({ error: err }));
+        .catch(err => res.status(400).json({ error: err.message }));
 });
 
 // Get all events a user has registered to
 router.route('/:id/tickets').get(authenticateToken, (req, res) => {
     User.findById(req.params.id).populate("userEvents")
         .then(user => res.json(user.userEvents))
-        .catch(err => res.status(400).json({ error: err }));
+        .catch(err => res.status(400).json({ error: err.message }));
 });
 
 // To register a user to an event
@@ -74,7 +74,7 @@ router.route('/:userId/events/:eventId').post(authenticateToken, (req, res) => {
             user.save();
             res.json({ success: true, message: 'User registered to event' });
         })
-        .catch(err => res.status(400).json({ error: err }));
+        .catch(err => res.status(400).json({ error: err.message }));
 });
 
 // To unregister a user from an event
@@ -90,13 +90,13 @@ router.route('/:userId/events/:eventId').delete(authenticateToken, (req, res) =>
 
             res.json({ success: true, message: 'User unregistered from event' });
         })
-        .catch(err => res.status(400).json({ error: err }));
+        .catch(err => res.status(400).json({ error: err.message }));
 });
 
 // router.route('/:id').delete((req, res) => {
 //     User.findByIdAndDelete(req.params.id)
 //         .then(() => res.json({ success: true, message: 'User deleted'}))
-//         .catch(err => res.status(400).json({ error: err }));
+//         .catch(err => res.status(400).json({ error: err.message }));
 // })
 
 function authenticateToken(req, res, next) {

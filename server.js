@@ -48,9 +48,9 @@ app.route('/api/v1/login').post((req, res) => {
                 .then(user => {
                     res.json({ authenticated: true, token: token, ...user});
                 })
-                .catch(err => res.status(400).json({ error: err }));
+                .catch(err => res.status(400).json({ error: err.message }));
         })
-        .catch(err => res.status(400).json({ error: err }));
+        .catch(err => res.status(400).json({ error: err.message }));
 })
 
 app.listen(port, () => {
