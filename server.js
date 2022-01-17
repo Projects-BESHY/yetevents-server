@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const MongoService = require('./facade/MongoService');
 const jwt = require('jsonwebtoken');
 
 require('dotenv').config();
@@ -11,13 +12,8 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const uri = process.env.DB_URI;
-mongoose.connect(uri);
-
-const connection = mongoose.connection;
-connection.once('open', () => {
-    console.log("MongoDB database connection established successfully");
-});
+const mongoService = new MongoService(process.env.DB_URI, mongoose);
+mongoService.connect();
 
 const userRouter = require('./routes/user.route');
 const eventRouter = require('./routes/event.route');
@@ -25,10 +21,12 @@ const tagRouter = require('./routes/tag.route');
 
 const User = require('./models/user.model');
 const UserAdapter = require('./adapter/userAdapter');
+const TokenAuthenticator = require('./chainOfResponsibility/TokenAuthenticator');
+const tokenAuthenticator = new TokenAuthenticator(process.env.ACCESS_TOKEN_SECRET);
 
 app.use('/api/v1/users', userRouter);
-app.use('/api/v1/events', authenticateToken, eventRouter);
-app.use('/api/v1/tags', authenticateToken, tagRouter);
+app.use('/api/v1/events', tokenAuthenticator.authenticate, eventRouter);
+app.use('/api/v1/tags', tokenAuthenticator.authenticate, tagRouter);
 
 app.route('/api/v1/login').post((req, res) => {
     const userName = req.body.userName;
@@ -50,17 +48,3 @@ app.route('/api/v1/login').post((req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
 });
-
-
-function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (token == null) return res.status(401).json({ message: 'No token. Please provide one in the request header Authorization.' });
-
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) return res.status(403).json({ message: 'Invalid token' });
-        req.user = user;
-        next();
-    })
-}
